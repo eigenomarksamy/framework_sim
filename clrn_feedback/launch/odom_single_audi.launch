@@ -2,7 +2,7 @@
 
 <launch>
 
-  <node pkg="clrn_feedback" name="odom_single_audi" type="odom_single_audi.py" output="screen">
+  <node pkg="clrn_feedback" name="odom_single_audi_rel" type="odom_single_audi_rel.py" output="screen">
   </node >
 
 </launch>

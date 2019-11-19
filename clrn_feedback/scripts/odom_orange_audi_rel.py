@@ -10,11 +10,11 @@ from std_msgs.msg import Header
 from geometry_msgs.msg import Point, Pose, Quaternion, Twist, TwistStamped, Vector3
 
 
-node_name = 'odom_rel_blue_pub'
-pub_name = '/audi_blue_rel_odom'
-header_frameid = "/odom_blue"
-child_frameid = "/blue/base_link"
-twist_topic = '/blue/twist'
+node_name = 'odom_rel_orange_pub'
+pub_name = '/audi_orange_rel_odom'
+header_frameid = "/odom_orange"
+child_frameid = "/orange/base_link"
+twist_topic = '/orange/twist'
 
 rospy.init_node(node_name)
 
