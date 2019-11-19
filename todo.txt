@@ -1,0 +1,12 @@
+- Mapping
+	- Add map topic
+	- Add 2D digital map
+	- Costmaps
+- Dynamic obstacles
+	- Pedestrians and cyclists
+- Controller
+	- Path tracker
+	- Go-to-point-goal
+- Feedback
+	- Apply transofrmations for odometry
+	- Add odometry frame
