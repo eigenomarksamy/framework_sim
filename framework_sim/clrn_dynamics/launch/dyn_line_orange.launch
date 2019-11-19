@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <node pkg="clrn_dynamics" name="dyn_line_orange" type="dyn_line_orange.py" output="screen">
+  </node >
+
+</launch>
