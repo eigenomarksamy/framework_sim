@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <include file="$(find dbw_mkz_gazebo)/launch/dbw_mkz_gazebo.launch" >
+    <arg name="use_camera_control" value="true" />
+    <arg name="world_name" value="$(find clrn_gazebo)/worlds/clrn_gazebo_world.world" />
+    <arg name="sim_param_file" value="$(find clrn_cfg)/yaml/ford_two_car.yaml" />
+  </include>
+
+  <include file="$(find dbw_mkz_can)/launch/dbw.launch" >
+    <arg name="live" value="false" />
+    <arg name="load_urdf" value="false" />
+    <arg name="can_ns" value="can_bus_dbw" />
+    <arg name="vehicle_ns" value="fusion" />
+    <arg name="ulc" value="false" />
+  </include>
+  
+  <node ns="fusion" pkg="dbw_mkz_twist_controller" type="twist_controller" name="twist_control" />
+
+  <include file="$(find dbw_mkz_can)/launch/dbw.launch" >
+    <arg name="live" value="false" />
+    <arg name="load_urdf" value="false" />
+    <arg name="can_ns" value="can_bus_dbw" />
+    <arg name="vehicle_ns" value="mkz" />
+    <arg name="ulc" value="false" />
+  </include>
+  
+  <node ns="mkz" pkg="dbw_mkz_twist_controller" type="twist_controller" name="twist_control" />
+
+  <node pkg="rviz" type="rviz" name="multi_car_rviz" args="-d $(find clrn_gazebo)/rviz/clrn_multi_ford.rviz" respawn="true" />
+
+</launch>

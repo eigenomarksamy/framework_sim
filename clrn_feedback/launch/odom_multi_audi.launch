@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <node pkg="clrn_feedback" name="odom_blue_audi" type="odom_blue_audi.py" output="screen">
+  </node >
+
+  <node pkg="clrn_feedback" name="odom_orange_audi" type="odom_orange_audi.py" output="screen">
+  </node >
+
+</launch>

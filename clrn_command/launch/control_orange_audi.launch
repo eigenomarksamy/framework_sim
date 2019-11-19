@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <node pkg="clrn_command" name="twistlat_orange_audi" type="twistlat_orange_audi.py" output="screen">
+  </node >
+  <node pkg="clrn_command" name="twistlot_orange_audi" type="twistlot_orange_audi.py" output="screen">
+  </node >
+
+</launch>
