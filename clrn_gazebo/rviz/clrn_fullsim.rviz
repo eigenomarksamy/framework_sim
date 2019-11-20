@@ -24,7 +24,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: PointCloud2
+    SyncSource: FusionVelodyne
 Toolbars:
   toolButtonStyle: 2
 Visualization Manager:
@@ -238,7 +238,7 @@ Visualization Manager:
       Max Intensity: 0
       Min Color: 0; 0; 0
       Min Intensity: 0
-      Name: PointCloud2
+      Name: FusionVelodyne
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
@@ -269,7 +269,7 @@ Visualization Manager:
         Value: true
       Enabled: true
       Keep: 100
-      Name: Odometry
+      Name: BlueOdom
       Position Tolerance: 0.100000001
       Shape:
         Alpha: 1
@@ -303,7 +303,7 @@ Visualization Manager:
         Value: true
       Enabled: true
       Keep: 100
-      Name: Odometry
+      Name: OrangeOdom
       Position Tolerance: 0.100000001
       Shape:
         Alpha: 1
@@ -351,7 +351,7 @@ Visualization Manager:
       Max Intensity: 0
       Min Color: 0; 0; 0
       Min Intensity: 0
-      Name: PointCloud2
+      Name: MkzVelodyne
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
@@ -415,7 +415,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-      Name: RobotModel
+      Name: BlueAudi
       Robot Description: /blue/robot_description
       TF Prefix: blue
       Update Interval: 0
@@ -431,68 +431,7 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        base_footprint:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        front_camera:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        front_camera_optical:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        perfect_gps:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        steer_fl:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        steer_fr:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        velodyne:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        velodyne_base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wheel_fl:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wheel_fr:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wheel_rl:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wheel_rr:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-      Name: RobotModel
+      Name: Mkz
       Robot Description: /mkz/robot_description
       TF Prefix: mkz
       Update Interval: 0
@@ -508,68 +447,7 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        base_footprint:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        front_camera:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        front_camera_optical:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        perfect_gps:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        steer_fl:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        steer_fr:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        velodyne:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        velodyne_base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wheel_fl:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wheel_fr:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wheel_rl:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wheel_rr:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-      Name: RobotModel
+      Name: Fusion
       Robot Description: /fusion/robot_description
       TF Prefix: fusion
       Update Interval: 0
@@ -627,7 +505,7 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-      Name: RobotModel
+      Name: OrangeAudi
       Robot Description: /orange/robot_description
       TF Prefix: orange
       Update Interval: 0
@@ -651,7 +529,7 @@ Visualization Manager:
       Max Intensity: 4096
       Min Color: 0; 0; 0
       Min Intensity: 0
-      Name: PointCloud2
+      Name: FusionSonar
       Position Transformer: ""
       Queue Size: 10
       Selectable: true
@@ -691,7 +569,7 @@ Visualization Manager:
       Max Intensity: 4096
       Min Color: 0; 0; 0
       Min Intensity: 0
-      Name: PointCloud2
+      Name: MkzSonar
       Position Transformer: ""
       Queue Size: 10
       Selectable: true

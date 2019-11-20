@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <include file="$(find clrn_feedback)/launch/odom_multi_audi.launch"/>
+
+  <node pkg="clrn_feedback" name="odom_mkz_abs" type="odom_mkz_abs.py" output="screen">
+  </node >
+
+</launch>

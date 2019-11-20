@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <node pkg="clrn_analyzer" name="rec_odom_mkz" type="rec_odom_mkz.py" output="screen">
+  </node >
+
+</launch>
