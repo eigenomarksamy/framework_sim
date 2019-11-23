@@ -41,35 +41,35 @@ model_state_pub = rospy.Publisher('gazebo/set_model_state', ModelState, queue_si
 
 
 def odom_callback(odom):
-	ref = 50.0
-	tol = ref / 2.0
-	pos = odom.pose.pose.position.y
-	if pos >= ref:
-		thrtl_pub.publish(Float64(0.0))
-		brake_pub.publish(Float64(1.0))
-		model_state_pub.publish(init_pos)
-	elif pos >= tol:
-		thrtl_pub.publish(Float64(0.0))
-		brake_pub.publish(Float64(((pos - tol) / (ref - tol))))
-	elif pos == 0.0:
-		thrtl_pub.publish(Float64(1.0))
-		brake_pub.publish(Float64(0.0))
-	else:
-		thrtl_pub.publish(Float64((1.0 - (pos / tol))))
-		brake_pub.publish(Float64(0.0))
+    ref = 50.0
+    tol = ref / 2.0
+    pos = odom.pose.pose.position.y
+    if pos >= ref:
+        thrtl_pub.publish(Float64(0.0))
+        brake_pub.publish(Float64(1.0))
+        model_state_pub.publish(init_pos)
+    elif pos >= tol:
+        thrtl_pub.publish(Float64(0.0))
+        brake_pub.publish(Float64(((pos - tol) / (ref - tol))))
+    elif pos == 0.0:
+        thrtl_pub.publish(Float64(1.0))
+        brake_pub.publish(Float64(0.0))
+    else:
+        thrtl_pub.publish(Float64((1.0 - (pos / tol))))
+        brake_pub.publish(Float64(0.0))
 
 
 def main():
-	try:
-		rospy.init_node('dyn_line_orange', anonymous=True)
-		rospy.Subscriber(odom_topic, Odometry, odom_callback)
-		thrtl_pub.publish(Float64(0.0))
-		brake_pub.publish(Float64(0.0))
-		steer_pub.publish(Float64(0.0))
-		rospy.spin()
-	except rospy.ROSInterruptException:
-		print "NO"
+    try:
+        rospy.init_node('dyn_line_orange', anonymous=True)
+        rospy.Subscriber(odom_topic, Odometry, odom_callback)
+        thrtl_pub.publish(Float64(0.0))
+        brake_pub.publish(Float64(0.0))
+        steer_pub.publish(Float64(0.0))
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        print "NO"
 
 
 if __name__ == '__main__':
-	main()
+    main()
