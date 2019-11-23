@@ -46,12 +46,12 @@ rr = rospy.Rate(1.0)
 
 
 def twist_callback(msg):
-	cur_time = msg.header.stamp
-	vx = msg.twist.linear.x
-	vy = msg.twist.linear.y
-	yawr = msg.twist.angular.z
+    cur_time = msg.header.stamp
+    vx = msg.twist.linear.x
+    vy = msg.twist.linear.y
+    yawr = msg.twist.angular.z
 
-	dt = (cur_time - pre_time).to_sec()
+    dt = (cur_time - pre_time).to_sec()
     delta_x = (vx * cos(yaw) - vy * sin(yaw)) * dt
     delta_y = (vx * sin(yaw) + vy * cos(yaw)) * dt
     delta_yaw = yawr * dt
@@ -86,8 +86,8 @@ def twist_callback(msg):
 
 
 try:
-	rospy.Subscriber(twist_topic, TwistStamped, twist_callback)
-	odom_pub.publish(init_msg)
-	rospy.spin()
+    rospy.Subscriber(twist_topic, TwistStamped, twist_callback)
+    odom_pub.publish(init_msg)
+    rospy.spin()
 except rospy.ROSInterruptException:
-	print "NO"
+    print "NO"
