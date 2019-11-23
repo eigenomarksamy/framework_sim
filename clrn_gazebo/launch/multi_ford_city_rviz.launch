@@ -4,7 +4,7 @@
 
   <include file="$(find dbw_mkz_gazebo)/launch/dbw_mkz_gazebo.launch" >
     <arg name="use_camera_control" value="true" />
-    <arg name="world_name" value="$(find clrn_gazebo)/worlds/clrn_gazebo_world.world" />
+    <arg name="world_name" value="$(find clrn_map)/worlds/clrn_gazebo_world.world" />
     <arg name="sim_param_file" value="$(find clrn_cfg)/yaml/ford_two_car.yaml" />
   </include>
 
