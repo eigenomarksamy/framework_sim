@@ -5,11 +5,14 @@
 - Dynamic obstacles
 	- Pedestrians and cyclists
 - Controller
-	- Path tracker
+	- Path tracker: LQR
+	= Path tracker: Stanley
 	- Go-to-point-goal
 - Global planner
-	- Collect path waypoints
 	- Publish global plan pased on way points
+- Local planner
+	- Apply TEB to project
 - Feedback
 	- Apply transofrmations for odometry
 	- Add odometry frame
+- Integration
