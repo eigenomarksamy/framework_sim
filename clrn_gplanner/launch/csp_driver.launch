@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <node pkg="clrn_gplanner" name="csp_driver" type="csp_driver.py" output="screen">
+  </node >
+
+</launch>
+
