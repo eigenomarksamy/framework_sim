@@ -17,7 +17,7 @@ def rec_callback(odom_data):
     odom_pose_pose_orientation_z = odom_data.pose.pose.orientation.z
     odom_pose_pose_orientation_w = odom_data.pose.pose.orientation.w
     odom_data_parse = [str(odom_header_seq), str(odom_pose_pose_position_x), str(odom_pose_pose_position_y), str(odom_pose_pose_orientation_x), str(odom_pose_pose_orientation_y), str(odom_pose_pose_orientation_z), str(odom_pose_pose_orientation_w)]
-    file = open("/home/oks/catkin_ws/src/framework_sim/odom_data_file.txt", "a")
+    file = open("/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/odom_data_file.txt", "a")
     for i in range(len(odom_data_parse)):
         file.write(odom_data_parse[i])
         file.write("\n")
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     odom_pose_pose_orientation_z = []
     odom_pose_pose_orientation_w = []
     try:
-        os.remove("/home/oks/catkin_ws/src/framework_sim/odom_data_file.txt")
+        os.remove("/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/odom_data_file.txt")
     except:
         pass
     main()
