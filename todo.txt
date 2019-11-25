@@ -6,12 +6,13 @@
 	- Pedestrians and cyclists
 - Controller
 	- Path tracker: LQR
-	= Path tracker: Stanley
-	- Go-to-point-goal
+	- Path tracker: Stanley
+	- Go-to-point-goal (twist & cmd)
 - Global planner
 	- Publish global plan pased on way points
 - Local planner
 	- Apply TEB to project
+	- Add new local planner
 - Feedback
 	- Apply transofrmations for odometry
 	- Add odometry frame
