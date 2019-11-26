@@ -58,6 +58,13 @@ class Path:
         self.refacto_y = self._y_path
         return self.refacto_x, self.refacto_y
 
+    def remove_initpoint(self, x_path, y_path):
+    	x_path.pop(0)
+    	y_path.pop(0)
+    	self.x_noinit = x_path
+    	self.y_noinit = y_path
+    	return self.x_noinit, self.y_noinit
+
     def remove_singular(self, x_path, y_path, path_props):
         self._singular_list = []
         if path_props[2][0] == path_props[2][1]:
@@ -81,8 +88,8 @@ class Path:
         self._y_max_path = max(y_path)
         self._x_final_path = x_path[-1]
         self._y_final_path = y_path[-1]
-        self._x_initial = x_path[1]
-        self._y_initial = y_path[1]
+        self._x_initial = x_path[0]
+        self._y_initial = y_path[0]
         self._start_point = [self._x_initial, self._y_initial]
         self._goal_point = [self._x_final_path, self._y_final_path]
         self._path_len = [self._x_size_path, self._y_size_path]
@@ -107,13 +114,10 @@ def generate_path(is_default = True):
     if is_default == True:
         path_obj = Path()
         x_raw, y_raw = path_obj.default_raw_path()
-        # x_refacto, y_refacto = path_obj.default_refactor()
         path_properties = path_obj.path_props(x_raw, y_raw)
         x_path, y_path = path_obj.remove_singular(x_raw, y_raw, path_properties)
-        # print x_path
-        x_path.pop(0)
-        # print path_properties
-        y_path.pop(0)
+        x_refacto, y_refacto = path_obj.remove_initpoint(x_path, y_path)
+        path_properties = path_obj.path_props(x_refacto, y_refacto)
         waypoints_x = x_path
         waypoints_y = y_path
         final_goal = path_properties[1]
