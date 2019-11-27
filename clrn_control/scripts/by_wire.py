@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+import math
+import rospy
 from std_msgs.msg import Float64MultiArray
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
@@ -38,42 +40,68 @@ class Vehicle_NS:
             self.brake_topic = '/fusion/brake_cmd'
             self.steer_topic = '/fusion/steering_cmd'
             self.gear_topic = '/fusion/gear_cmd'
-            self.twist_topic = 'fusion/cmd_vel'
             self.turn_signal_topic = '/fusion/turn_signal_cmd'
+            self.cmd_vel_topic = 'fusion/cmd_vel'
             self.thrtl_msg_t = ThrottleCmd
             self.brake_msg_t = BrakeCmd
             self.steer_msg_t = SteeringCmd
             self.gear_msg_t = GearCmd
-            self.twist_msg_t = Twist
             self.turn_signal_msg_t = TurnSignalCmd
+            self.cmd_vel_msg_t = Twist
 
 
-def trkr_out_llc_in_callback(data):
+def quaternion_to_euler(qx, qy, qz, qw):
+    t0 = +2.0 * (qw * qx + qy * qz)
+    t1 = +1.0 - 2.0 * (qx * qx + qy * qy)
+    roll = math.atan2(t0, t1)
+    t2 = +2.0 * (qw * qy - qz * qx)
+    t2 = +1.0 if t2 > +1.0 else t2
+    t2 = -1.0 if t2 < -1.0 else t2
+    pitch = math.asin(t2)
+    t3 = +2.0 * (qw * qz + qx * qy)
+    t4 = +1.0 - 2.0 * (qy * qy + qz * qz)
+    yaw = math.atan2(t3, t4)
+    return yaw, pitch, roll
 
+
+def llc(fb_obj):
+    global reference_x, reference_y
+    cur_x = fb_obj.pose.pose.position.x
+    cur_y = fb_obj.pose.pose.position.y
+    cur_qx = fb_obj.pose.pose.orientation.x
+    cur_qy = fb_obj.pose.pose.orientation.y
+    cur_qz = fb_obj.pose.pose.orientation.z
+    cur_qw = fb_obj.pose.pose.orientation.w
+    cur_yaw, _, _ = quaternion_to_euler(cur_qx, cur_qy, cur_qz, cur_qw)
+
+
+def feedback_out_llc_in_callback(odom_feedback_msg):
+    while odom_feedback_msg.header.seq > 4:
+        llc(odom_feedback_msg)
 
 
 def main():
     try:
         ns_obj = Vehicle_NS("mkz")
         rospy.init_node(ns_obj.trkr_out_llc_in_node, anonymous=True)
-        thrtl_pub = rospy.Publisher(ns_obj.thrtl_topic, ns_obj.thrtl_msg_t, queue_size=10)
-        brake_pub = rospy.Publisher(ns_obj.brake_topic, ns_obj.brake_msg_t, queue_size=10)
-        steer_pub = rospy.Publisher(ns_obj.steer_topic, ns_obj.steer_msg_t, queue_size=10)
-        gear_pub = rospy.Publisher(ns_obj.gear_topic, ns_obj.gear_msg_t, queue_size=10)
-        twist_pub = rospy.Publisher(ns_obj.twist_topic, ns_obj.twist_msg_t, queue_size=10)
-        twist_init_msg = self.twist_msg_t
-        twist_init_msg.linear.x = 0.0
-        twist_init_msg.linear.y = 0.0
-        twist_init_msg.linear.z = 0.0
-        twist_init_msg.angular.x = 0.0
-        twist_init_msg.angular.y = 0.0
-        twist_init_msg.angular.z = 0.0
-        rospy.Subscriber(ns_obj.trkr_out_llc_in_topic, ns_obj.trkr_msg_t, trkr_out_llc_in_callback)
+        # thrtl_pub = rospy.Publisher(ns_obj.thrtl_topic, ns_obj.thrtl_msg_t, queue_size=10)
+        # brake_pub = rospy.Publisher(ns_obj.brake_topic, ns_obj.brake_msg_t, queue_size=10)
+        # steer_pub = rospy.Publisher(ns_obj.steer_topic, ns_obj.steer_msg_t, queue_size=10)
+        # gear_pub = rospy.Publisher(ns_obj.gear_topic, ns_obj.gear_msg_t, queue_size=10)
+        cmd_vel_pub = rospy.Publisher(ns_obj.cmd_vel_topic, ns_obj.twist_msg_t, queue_size=10)
+        cmd_vel_init_msg = self.twist_msg_t
+        cmd_vel_init_msg.linear.x = 0.0
+        cmd_vel_init_msg.linear.y = 0.0
+        cmd_vel_init_msg.linear.z = 0.0
+        cmd_vel_init_msg.angular.x = 0.0
+        cmd_vel_init_msg.angular.y = 0.0
+        cmd_vel_init_msg.angular.z = 0.0
+        # rospy.Subscriber(ns_obj.trkr_out_llc_in_topic, ns_obj.trkr_msg_t, trkr_out_llc_in_callback)
         rospy.Subscriber(ns_obj.feedback_out_llc_in_topic, ns_obj.feedback_msg_t, feedback_out_llc_in_callback)
-        twist_pub.pub(twist_init_msg)
+        twist_pub.pub(cmd_vel_init_msg)
         rospy.spin()
     except:
-        print "Traker IN LLC OUT node not running!!"
+        print "LLC not running!!"
 
 
 if __name__ == '__main__':
