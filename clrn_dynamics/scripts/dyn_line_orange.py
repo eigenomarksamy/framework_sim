@@ -8,8 +8,15 @@ from nav_msgs.msg import Odometry
 from gazebo_msgs.msg import ModelState
 
 
+node_name = 'dyn_line_orange'
+thrtl_topic = '/orange/throttle_cmd'
+brake_topic = '/orange/brake_cmd'
+steer_topic = '/orange/steering_cmd'
+odom_topic = '/audi_orange_odom'
+modelstate_topic = 'gazebo/set_model_state'
+model_name = 'orange'
 init_pos = ModelState()
-init_pos.model_name = 'orange'
+init_pos.model_name = model_name
 roll = 0.0
 pitch = 0.0
 yaw = 1.57
@@ -30,14 +37,10 @@ init_pos.twist.linear.z = 0.0
 init_pos.twist.angular.x = 0.0
 init_pos.twist.angular.y = 0.0
 init_pos.twist.angular.z = 0.0
-thrtl_topic = '/orange/throttle_cmd'
-brake_topic = '/orange/brake_cmd'
-steer_topic = '/orange/steering_cmd'
-odom_topic = '/audi_orange_odom'
 thrtl_pub = rospy.Publisher(thrtl_topic, Float64, queue_size=10)
 brake_pub = rospy.Publisher(brake_topic, Float64, queue_size=10)
 steer_pub = rospy.Publisher(steer_topic, Float64, queue_size=10)
-model_state_pub = rospy.Publisher('gazebo/set_model_state', ModelState, queue_size = 10, latch = True)
+model_state_pub = rospy.Publisher(modelstate_topic, ModelState, queue_size = 10, latch = True)
 
 
 def odom_callback(odom):
@@ -61,7 +64,7 @@ def odom_callback(odom):
 
 def main():
     try:
-        rospy.init_node('dyn_line_orange', anonymous=True)
+        rospy.init_node(node_name, anonymous=True)
         rospy.Subscriber(odom_topic, Odometry, odom_callback)
         thrtl_pub.publish(Float64(0.0))
         brake_pub.publish(Float64(0.0))
