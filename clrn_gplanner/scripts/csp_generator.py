@@ -1,6 +1,7 @@
 #! /usr/bin/python
 
 
+import os
 import math
 import imp
 import sys
@@ -148,3 +149,27 @@ def calc_speed_profile(cx, cy, cyaw, target_speed):
         if speed_profile[-i] <= 1.0 / 3.6:
             speed_profile[-i] = 1.0 / 3.6
     return speed_profile
+
+
+def generate_txt_course(plan):
+    names_l = ["wpx", "wpy", "fg", "cs", "cy", "cyaw", "ck", "cs", "tv", "sp"]
+    course_file = "/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/course_txt.txt"
+    try:
+        os.remove(course_file)
+    except:
+        pass
+    course_file_obj = open(course_file, "w")
+    for i in range(len(plan)):
+        tmp_l = plan[i]
+        tmp_name = names_l[i]
+        if i == 8:
+            tmp_l = [tmp_l]
+        course_file_obj.write(tmp_name)
+        course_file_obj.write("\n")
+        for j in range(len(tmp_l)):
+            course_file_obj.write(str(tmp_l[j]))
+            course_file_obj.write(" ")
+        course_file_obj.write("\n")
+        course_file_obj.write("-------------------------------------------")
+        course_file_obj.write("\n")
+    course_file_obj.close()
