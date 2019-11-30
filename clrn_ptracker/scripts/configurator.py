@@ -27,6 +27,8 @@ class Config():
             self.gear_msg_t = GearCmd()
             self.turn_signal_msg_t = TurnSignalCmd()
             self.cmd_vel_msg_t = Twist()
+            self.time_step = 0.1
+
 
 def get_config(is_default = True):
     if is_default == True:
