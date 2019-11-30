@@ -34,7 +34,7 @@ def main():
 
 if __name__ == '__main__':
     node_name = 'rec_odom_mkz'
-    subtopic_name = '/mkz_odom'
+    subtopic_name = '/mkz/odom'
     odom_header_seq = []
     odom_header_stamp = []
     odom_header_frameid = []
