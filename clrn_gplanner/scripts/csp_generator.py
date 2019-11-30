@@ -152,7 +152,7 @@ def calc_speed_profile(cx, cy, cyaw, target_speed):
 
 
 def generate_txt_course(plan):
-    names_l = ["wpx", "wpy", "fg", "cs", "cy", "cyaw", "ck", "cs", "tv", "sp"]
+    names_l = ["wpx", "wpy", "fg", "cx", "cy", "cyaw", "ck", "cs", "tv", "sp"]
     course_file = "/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/course_txt.txt"
     try:
         os.remove(course_file)

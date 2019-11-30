@@ -16,7 +16,7 @@ class Vehicle_NS:
         if vehicle == "mkz":
             self.trkr_out_llc_in_node = 'mkz_llc_node'
             self.trkr_out_llc_in_topic =  '/mkz/ptracker'
-            self.feedback_out_llc_in_topic = '/mkz_odom'
+            self.feedback_out_llc_in_topic = '/mkz/odom'
             self.thrtl_topic = '/mkz/throttle_cmd'
             self.brake_topic = '/mkz/brake_cmd'
             self.steer_topic = '/mkz/steering_cmd'
