@@ -1,22 +1,39 @@
 #! /usr/bin/python3
 
 
-import rospy
 import sys
 import os
 import time
+
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+
 sys.path.append("/home/oks/catkin_ws/src/framework_sim/clrn_ptracker/scripts/")
 import controller
 import configurator
 
+import rospy
+from geometry_msgs.msg import Twist
+
 
 def init_nav():
+    global seq_pre_g
+    seq_pre_g = 0
     config = configurator.get_config()
     path = parse_path(config)
-    return config, path
+    pub_obj = init_ros(config)
+    return config, path, pub_obj
+
+
+def init_ros(config):
+    try:
+        rospy.init_node(config.trkr_out_node, anonymous=True)
+        pub_obj = rospy.Publisher(config.cmd_vel_topic, Twist, queue_size=10)
+        return pub_obj
+    except rospy.ROSInterruptException:
+        print('ROS Connection Lost!')
+        return
 
 
 def parse_path(config):
@@ -70,7 +87,109 @@ def parse_path(config):
     return [waypoints_x, waypoints_y, final_goal, course_x, course_y, course_yaw, course_k, course_s, target_velocity, speed_profile]
 
 
-def exec_nav(config, path):
+def quaternion_to_euler(qx, qy, qz, qw):
+    t0 = +2.0 * (qw * qx + qy * qz)
+    t1 = +1.0 - 2.0 * (qx * qx + qy * qy)
+    roll = math.atan2(t0, t1)
+    t2 = +2.0 * (qw * qy - qz * qx)
+    t2 = +1.0 if t2 > +1.0 else t2
+    t2 = -1.0 if t2 < -1.0 else t2
+    pitch = math.asin(t2)
+    t3 = +2.0 * (qw * qz + qx * qy)
+    t4 = +1.0 - 2.0 * (qy * qy + qz * qz)
+    yaw = math.atan2(t3, t4)
+    return yaw, pitch, roll
+
+
+def send_init_cmd(config, pub):
+    cmd_vel_init_msg = config.cmd_vel_msg_t
+    cmd_vel_init_msg.linear.x = 0.0
+    cmd_vel_init_msg.linear.y = 0.0
+    cmd_vel_init_msg.linear.z = 0.0
+    cmd_vel_init_msg.angular.x = 0.0
+    cmd_vel_init_msg.angular.y = 0.0
+    cmd_vel_init_msg.angular.z = 0.0
+    pub.publish(cmd_vel_init_msg)
+
+
+def feedback_callback(odom_data):
+    global cmd_pub_g, config_g, waypoints_g, x_history_g, y_history_g, yaw_history_g, speed_history_g, time_history_g, seq_pre_g, controller_g
+    x_history = x_history_g
+    y_history = y_history_g
+    yaw_history = yaw_history_g
+    time_history = time_history_g
+    speed_history = speed_history_g
+    odom_x = odom_data.pose.pose.position.x
+    odom_y = odom_data.pose.pose.position.y
+    odom_qx = odom_data.pose.pose.orientation.x
+    odom_qy = odom_data.pose.pose.orientation.y
+    odom_qz = odom_data.pose.pose.orientation.z
+    odom_qw = odom_data.pose.pose.orientation.w
+    odom_vx = odom_data.twist.twist.linear.x
+    odom_vy = odom_data.twist.twist.linear.y
+    odom_rz = odom_data.twist.twist.angular.z
+    odom_yaw, _, _ = quaternion_to_euler(odom_qx, odom_qy, odom_qz, odom_qw)
+    x_history.append(odom_x)
+    y_history.append(odom_y)
+    yaw_history.append(odom_yaw)
+    speed_history.append(np.sqrt(odom_vx**2 + odom_vy**2))
+    time_history.append(time_history[-1] + 0.1)
+    if seq_pre_g == 0:
+        closest_index = 0
+    closest_distance = np.linalg.norm(np.array([
+            waypoints_np[closest_index, 0] - current_x,
+            waypoints_np[closest_index, 1] - current_y]))
+    new_distance = closest_distance
+    new_index = closest_index
+    while new_distance <= closest_distance:
+        closest_distance = new_distance
+        closest_index = new_index
+        new_index += 1
+        if new_index >= waypoints_np.shape[0]:
+            break
+        new_distance = np.linalg.norm(np.array([
+                waypoints_np[new_index, 0] - current_x,
+                waypoints_np[new_index, 1] - current_y]))
+    new_distance = closest_distance
+    new_index = closest_index
+    while new_distance <= closest_distance:
+        closest_distance = new_distance
+        closest_index = new_index
+        new_index -= 1
+        if new_index < 0:
+            break
+        new_distance = np.linalg.norm(np.array([
+                waypoints_np[new_index, 0] - current_x,
+                waypoints_np[new_index, 1] - current_y]))
+    waypoint_subset_first_index = closest_index - 1
+    if waypoint_subset_first_index < 0:
+        waypoint_subset_first_index = 0
+    waypoint_subset_last_index = closest_index
+    total_distance_ahead = 0
+    while total_distance_ahead < 20:
+        total_distance_ahead += wp_distance[waypoint_subset_last_index]
+        waypoint_subset_last_index += 1
+        if waypoint_subset_last_index >= waypoints_np.shape[0]:
+            waypoint_subset_last_index = waypoints_np.shape[0] - 1
+            break
+    new_waypoints = \
+            wp_interp[wp_interp_hash[waypoint_subset_first_index]:\
+                      wp_interp_hash[waypoint_subset_last_index] + 1]
+    controller.update_waypoints(new_waypoints)
+
+    # Update the other controller values and controls
+    controller.update_values(current_x, current_y, current_yaw, 
+                             current_speed,
+                             current_timestamp, frame)
+    controller.update_controls()
+    cmd_throttle, cmd_steer, cmd_brake = controller.get_commands()
+    seq_pre_g = odom_data.header.seq
+
+
+def exec_nav(config, path, pub):
+    global cmd_pub_g, waypoints_g, config_g, controller_g
+    cmd_pub_g = pub
+    config_g = config
     wp_x = path[0]
     wp_y = path[1]
     fg = path[2]
@@ -110,19 +229,21 @@ def exec_nav(config, path):
     num_iterations = 10
     if (10 < 1):
         num_iterations = 1
+    waypoints_g = [waypoints, waypoints_np, wp_distance, wp_interp, wp_interp_hash]
+    controller = controller.Controller(waypoints)
+    controller_g = controller
+    rospy.Subscriber(config.feedback_out_topic, Odometry, feedback_callback)
+    send_init_cmd(config, pub)
+    rospy.spin()
 
 
 def main():
     while True:
-        # try:
         print('Get Ready for the Fuckin\' Ride')
-        config, path = init_nav()
-        exec_nav(config, path)
+        config, path, pub = init_nav()
+        exec_nav(config, path, pub)
         print('Done.')
         return
-        # except rospy.ROSInterruptException:
-            # print('ROS Connection Lost!')
-            # time.sleep(1)
 
 
 if __name__ == '__main__':
