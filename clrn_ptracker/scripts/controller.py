@@ -177,6 +177,8 @@ class Controller(object):
             t_cur = t
             t_pre = self.vars.t_pre
             sample_t = t_cur - t_pre
+            if sample_t == 0.0:
+                sample_t += 0.1
             v_des = v_desired
             v_cur = v
             v_err_cur = v_des - v_cur

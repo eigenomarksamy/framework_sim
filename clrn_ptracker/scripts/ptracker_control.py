@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#! /usr/bin/python
 
 
 import sys
@@ -15,11 +15,22 @@ import configurator
 
 import rospy
 from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+
+
+def init_globals():
+    global x_history_g, y_history_g, yaw_history_g, speed_history_g, time_history_g, seq_history_g, seq_pre_g
+    seq_pre_g = 0
+    x_history_g = []
+    y_history_g = []
+    yaw_history_g = []
+    speed_history_g = []
+    time_history_g = []
+    seq_history_g = []
 
 
 def init_nav():
-    global seq_pre_g
-    seq_pre_g = 0
+    init_globals()
     config = configurator.get_config()
     path = parse_path(config)
     pub_obj = init_ros(config)
@@ -28,7 +39,7 @@ def init_nav():
 
 def init_ros(config):
     try:
-        rospy.init_node(config.trkr_out_node, anonymous=True)
+        rospy.init_node(config.trkr_out_node)
         pub_obj = rospy.Publisher(config.cmd_vel_topic, Twist, queue_size=10)
         return pub_obj
     except rospy.ROSInterruptException:
@@ -112,13 +123,39 @@ def send_init_cmd(config, pub):
     pub.publish(cmd_vel_init_msg)
 
 
+def convert_cmd_to_twist(cmd_throttle, cmd_steer, cmd_brake):
+    twist_cmd = Twist()
+    if cmd_throttle > 0.0 and cmd_throttle <= 1.0:
+        twist_cmd.linear.x = 1.0
+    elif cmd_throttle == 0.0:
+        twist_cmd.linear.x = 0.0
+    twist_cmd.linear.x = cmd_throttle * 1.5
+    if cmd_steer > 0.0:
+        twist_cmd.angular.z = 1.0
+    elif cmd_steer < 0.0:
+        twist_cmd.angular.z = -1.0
+    elif cmd_steer == 0.0:
+        twist_cmd.angular.z = 0.0
+    twist_cmd.linear.x = cmd_throttle
+    twist_cmd.angular.z = cmd_steer
+    return twist_cmd
+
+
 def feedback_callback(odom_data):
-    global cmd_pub_g, config_g, waypoints_g, x_history_g, y_history_g, yaw_history_g, speed_history_g, time_history_g, seq_pre_g, controller_g
+    global cmd_pub_g, config_g, waypoints_g, x_history_g, y_history_g, yaw_history_g, speed_history_g, time_history_g, seq_history_g, seq_pre_g, controller_g, cur_time_g, pre_time_g, closest_index_g
+    seq_cur = odom_data.header.seq
     x_history = x_history_g
     y_history = y_history_g
     yaw_history = yaw_history_g
     time_history = time_history_g
     speed_history = speed_history_g
+    seq_history = seq_history_g
+    controller_l = controller_g
+    waypoints = waypoints_g[0]
+    waypoints_np = waypoints_g[1]
+    wp_distance = waypoints_g[2]
+    wp_interp = waypoints_g[3]
+    wp_interp_hash = waypoints_g[4]
     odom_x = odom_data.pose.pose.position.x
     odom_y = odom_data.pose.pose.position.y
     odom_qx = odom_data.pose.pose.orientation.x
@@ -129,13 +166,30 @@ def feedback_callback(odom_data):
     odom_vy = odom_data.twist.twist.linear.y
     odom_rz = odom_data.twist.twist.angular.z
     odom_yaw, _, _ = quaternion_to_euler(odom_qx, odom_qy, odom_qz, odom_qw)
-    x_history.append(odom_x)
-    y_history.append(odom_y)
-    yaw_history.append(odom_yaw)
-    speed_history.append(np.sqrt(odom_vx**2 + odom_vy**2))
-    time_history.append(time_history[-1] + 0.1)
+    # print odom_x
+    # print odom_y
+    # print odom_yaw
+    current_x = odom_x
+    current_y = odom_y
+    current_yaw = odom_yaw
+    current_speed = np.sqrt(odom_vx**2 + odom_vy**2)
+    x_history.append(current_x)
+    y_history.append(current_y)
+    yaw_history.append(current_yaw)
+    speed_history.append(current_speed)
+    seq_history.append(seq_cur)
     if seq_pre_g == 0:
-        closest_index = 0
+        time_history.append(0.1)
+        pre_time_g = 0.0
+        cur_time_g = 0.1
+    else:
+        time_history.append(time_history[-1] + 0.1)
+        cur_time_g = pre_time_g + 0.1
+    previous_timestamp = pre_time_g
+    current_timestamp = cur_time_g
+    if seq_pre_g == 0:
+        closest_index_g = 0
+    closest_index = closest_index_g
     closest_distance = np.linalg.norm(np.array([
             waypoints_np[closest_index, 0] - current_x,
             waypoints_np[closest_index, 1] - current_y]))
@@ -175,15 +229,20 @@ def feedback_callback(odom_data):
     new_waypoints = \
             wp_interp[wp_interp_hash[waypoint_subset_first_index]:\
                       wp_interp_hash[waypoint_subset_last_index] + 1]
-    controller.update_waypoints(new_waypoints)
-
-    # Update the other controller values and controls
-    controller.update_values(current_x, current_y, current_yaw, 
+    controller_l.update_waypoints(new_waypoints)
+    controller_l.update_values(current_x, current_y, current_yaw, 
                              current_speed,
-                             current_timestamp, frame)
-    controller.update_controls()
-    cmd_throttle, cmd_steer, cmd_brake = controller.get_commands()
-    seq_pre_g = odom_data.header.seq
+                             current_timestamp, 1)
+    controller_l.update_controls()
+    cmd_throttle, cmd_steer, cmd_brake = controller_l.get_commands()
+    print "Seq INFO: ", seq_pre_g
+    print "Throttle CMD: ", cmd_throttle
+    print "Steer CMD: ", cmd_steer
+    print "Brake CMD: ", cmd_brake
+    msg_to_pub = convert_cmd_to_twist(cmd_throttle, cmd_steer, cmd_brake)
+    cmd_pub_g.publish(msg_to_pub)
+    previous_timestamp = current_timestamp
+    seq_pre_g = seq_cur
 
 
 def exec_nav(config, path, pub):
@@ -200,7 +259,10 @@ def exec_nav(config, path, pub):
     cs = path[7]
     tv = path[8]
     sp = path[9]
-    waypoints = list(zip(wp_x, wp_y))
+    v = []
+    for i in range(len(wp_x)):
+        v.append(10.0)
+    waypoints = list(zip(wp_x, wp_y, v))
     waypoints_np = np.array(waypoints)
     wp_distance = []
     for i in range(1, waypoints_np.shape[0]):
@@ -230,8 +292,8 @@ def exec_nav(config, path, pub):
     if (10 < 1):
         num_iterations = 1
     waypoints_g = [waypoints, waypoints_np, wp_distance, wp_interp, wp_interp_hash]
-    controller = controller.Controller(waypoints)
-    controller_g = controller
+    controller_l = controller.Controller(waypoints)
+    controller_g = controller_l
     rospy.Subscriber(config.feedback_out_topic, Odometry, feedback_callback)
     send_init_cmd(config, pub)
     rospy.spin()
