@@ -25,7 +25,7 @@ model = GetModelStateRequest()
 
 model.model_name = 'mkz'
 
-r = rospy.Rate(5)
+r = rospy.Rate(10)
 
 while not rospy.is_shutdown():
 
