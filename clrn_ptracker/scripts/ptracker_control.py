@@ -16,10 +16,12 @@ import configurator
 import rospy
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
+from std_msgs.msg import Float64
 
 
 def init_globals():
-    global x_history_g, y_history_g, yaw_history_g, speed_history_g, time_history_g, seq_history_g, seq_pre_g
+    global x_history_g, y_history_g, yaw_history_g, speed_history_g, time_history_g, seq_history_g, seq_pre_g, reached_the_end_g
+    reached_the_end_g = False
     seq_pre_g = 0
     x_history_g = []
     y_history_g = []
@@ -137,12 +139,13 @@ def convert_cmd_to_twist(cmd_throttle, cmd_steer, cmd_brake):
     elif cmd_steer == 0.0:
         twist_cmd.angular.z = 0.0
     twist_cmd.linear.x = cmd_throttle
-    twist_cmd.angular.z = cmd_steer
+    twist_cmd.angular.z = cmd_steer / 1.22
     return twist_cmd
 
 
 def feedback_callback(odom_data):
-    global cmd_pub_g, config_g, waypoints_g, x_history_g, y_history_g, yaw_history_g, speed_history_g, time_history_g, seq_history_g, seq_pre_g, controller_g, cur_time_g, pre_time_g, closest_index_g
+    global cmd_pub_g, config_g, waypoints_g, x_history_g, y_history_g, yaw_history_g, speed_history_g, time_history_g, seq_history_g, seq_pre_g, controller_g, cur_time_g, pre_time_g, closest_index_g, fg_g, reached_the_end_g
+    reached_the_end = reached_the_end_g
     seq_cur = odom_data.header.seq
     x_history = x_history_g
     y_history = y_history_g
@@ -166,9 +169,6 @@ def feedback_callback(odom_data):
     odom_vy = odom_data.twist.twist.linear.y
     odom_rz = odom_data.twist.twist.angular.z
     odom_yaw, _, _ = quaternion_to_euler(odom_qx, odom_qy, odom_qz, odom_qw)
-    # print odom_x
-    # print odom_y
-    # print odom_yaw
     current_x = odom_x
     current_y = odom_y
     current_yaw = odom_yaw
@@ -239,14 +239,29 @@ def feedback_callback(odom_data):
     print "Throttle CMD: ", cmd_throttle
     print "Steer CMD: ", cmd_steer
     print "Brake CMD: ", cmd_brake
+    print "X: ", current_x
+    print "Y: ", current_y
+    print "YAW: ", current_yaw
+    print "Speed: ", current_speed
+    print "Goal: ", fg_g[0], ", ", fg_g[1]
+    print "--------------------------"
     msg_to_pub = convert_cmd_to_twist(cmd_throttle, cmd_steer, cmd_brake)
     cmd_pub_g.publish(msg_to_pub)
+    dist_to_last_waypoint = np.linalg.norm(np.array([
+        waypoints[-1][0] - current_x,
+        waypoints[-1][1] - current_y]))
+    if  dist_to_last_waypoint < 2.0:
+        reached_the_end = True
+    if reached_the_end:
+        print("Reached the end of path.")
+        msg_to_pub = convert_cmd_to_twist(0.0, 0.0, 0.0)
+        cmd_pub_g.publish(msg_to_pub)
     previous_timestamp = current_timestamp
     seq_pre_g = seq_cur
 
 
 def exec_nav(config, path, pub):
-    global cmd_pub_g, waypoints_g, config_g, controller_g
+    global cmd_pub_g, waypoints_g, config_g, controller_g, fg_g
     cmd_pub_g = pub
     config_g = config
     wp_x = path[0]
@@ -260,9 +275,10 @@ def exec_nav(config, path, pub):
     tv = path[8]
     sp = path[9]
     v = []
+    fg_g = fg
     for i in range(len(wp_x)):
         v.append(10.0)
-    waypoints = list(zip(wp_x, wp_y, v))
+    waypoints = list(zip(wp_x, wp_y, sp))
     waypoints_np = np.array(waypoints)
     wp_distance = []
     for i in range(1, waypoints_np.shape[0]):
