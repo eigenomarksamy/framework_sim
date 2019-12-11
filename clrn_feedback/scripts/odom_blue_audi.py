@@ -9,7 +9,7 @@ from gazebo_msgs.srv import GetModelState, GetModelStateRequest
 
 rospy.init_node('odom_blue_audi')
 
-odom_pub = rospy.Publisher('/audi_blue_odom', Odometry, queue_size=10)
+odom_pub = rospy.Publisher('/blue/odom', Odometry, queue_size=10)
 
 rospy.wait_for_service('/gazebo/get_model_state')
 
@@ -25,7 +25,7 @@ model = GetModelStateRequest()
 
 model.model_name = 'blue'
 
-r = rospy.Rate(2)
+r = rospy.Rate(10)
 
 while not rospy.is_shutdown():
 
