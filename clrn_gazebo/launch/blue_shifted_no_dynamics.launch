@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<launch>
+
+  <include file="$(find audibot_gazebo)/launch/audibot_named_robot_sens.launch" >
+    <arg name="robot_name" value="orange" />
+    <arg name="start_x" value="40" />
+    <arg name="start_y" value="-45" />
+    <arg name="start_z" value="0" />
+    <arg name="start_yaw" value="1.57" />
+    <arg name="pub_tf" value="true" />
+    <arg name="tf_freq" value="100.0" />
+    <arg name="blue" value="false" />
+  </include>
+
+  <include file="$(find audibot_gazebo)/launch/audibot_named_robot_sens.launch" >
+    <arg name="robot_name" value="blue" />
+    <arg name="start_x" value="42" />
+    <arg name="start_y" value="80" />
+    <arg name="start_z" value="0" />
+    <arg name="start_yaw" value="1.57" />
+    <arg name="pub_tf" value="true" />
+    <arg name="tf_freq" value="100.0" />
+    <arg name="blue" value="true" />
+  </include>
+
+  <include file="$(find dbw_mkz_gazebo)/launch/dbw_mkz_gazebo.launch" >
+    <arg name="use_camera_control" value="true" />
+    <arg name="world_name" value="$(find clrn_map)/worlds/clrn_gazebo_world.world" />
+    <arg name="sim_param_file" value="$(find clrn_cfg)/yaml/ford_two_main_mkz.yaml" />
+  </include>
+
+  <include file="$(find dbw_mkz_can)/launch/dbw.launch" >
+    <arg name="live" value="false" />
+    <arg name="load_urdf" value="false" />
+    <arg name="can_ns" value="can_bus_dbw" />
+    <arg name="vehicle_ns" value="fusion" />
+    <arg name="ulc" value="false" />
+  </include>
+  
+  <node ns="fusion" pkg="dbw_mkz_twist_controller" type="twist_controller" name="twist_control" />
+
+  <include file="$(find dbw_mkz_can)/launch/dbw.launch" >
+    <arg name="live" value="false" />
+    <arg name="load_urdf" value="false" />
+    <arg name="can_ns" value="can_bus_dbw" />
+    <arg name="vehicle_ns" value="mkz" />
+    <arg name="ulc" value="false" />
+  </include>
+  
+  <node ns="mkz" pkg="dbw_mkz_twist_controller" type="twist_controller" name="twist_control" />
+
+  <include file="$(find clrn_feedback)/launch/odom_multi.launch"/>
+
+  <include file="$(find clrn_command)/launch/control_blue_audi.launch"/>
+
+  <include file="$(find clrn_analyzer)/launch/rec_odom_blue.launch"/>
+
+  <node pkg="rviz" type="rviz" name="two_vehicle_viz" args="-d $(find clrn_gazebo)/rviz/clrn_fullsim.rviz" />
+
+</launch>
