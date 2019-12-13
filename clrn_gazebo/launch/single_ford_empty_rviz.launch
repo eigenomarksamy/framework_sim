@@ -17,6 +17,8 @@
   
   <node ns="fusion" pkg="dbw_mkz_twist_controller" type="twist_controller" name="twist_control" />
 
+  <include file="$(find clrn_feedback)/launch/odom_single_ford.launch"/>
+
   <node pkg="rviz" type="rviz" name="multi_car_rviz" args="-d $(find clrn_gazebo)/rviz/clrn_single_ford.rviz" respawn="true" />
   
 </launch>
