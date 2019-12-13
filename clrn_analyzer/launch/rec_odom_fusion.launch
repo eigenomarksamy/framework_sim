@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <node pkg="clrn_analyzer" name="rec_odom_fusion" type="rec_odom_fusion.py" output="screen">
+  </node >
+
+</launch>
