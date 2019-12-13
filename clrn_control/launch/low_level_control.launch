@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <node pkg="clrn_control" name="low_level_control" type="low_level_control.py" output="screen">
+  </node >
+
+</launch>

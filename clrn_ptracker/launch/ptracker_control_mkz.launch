@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <node pkg="clrn_ptracker" name="ptracker_control_mkz" type="ptracker_control_mkz.py" output="screen">
+  </node>
+
+</launch>
