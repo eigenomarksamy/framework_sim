@@ -28,6 +28,7 @@ class Config():
             self.gear_msg_t = GearCmd()
             self.turn_signal_msg_t = TurnSignalCmd()
             self.cmd_vel_msg_t = Twist()
+            self.cmd_list_msg_t = Float64MultiArray()
             self.time_step = 0.1
         elif vehicle == 'blue':
             self.trkr_out_node = 'blue_ptracker'
@@ -42,6 +43,7 @@ class Config():
             self.brake_msg_t = Float64()
             self.steer_msg_t = Float64()
             self.cmd_vel_msg_t = Twist()
+            self.cmd_list_msg_t = Float64MultiArray()
             self.time_step = 0.1
 
 

@@ -17,6 +17,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Float64
+from std_msgs.msg import Float64MultiArray
 
 
 def init_globals():
@@ -47,7 +48,7 @@ def init_nav():
 def init_ros(config):
     try:
         rospy.init_node(config.trkr_out_node)
-        pub_obj = rospy.Publisher(config.cmd_vel_topic, Twist, queue_size=10)
+        pub_obj = rospy.Publisher(config.trkr_out_topic, Float64MultiArray, queue_size=10)
         return pub_obj
     except rospy.ROSInterruptException:
         print('ROS Connection Lost!')
@@ -120,18 +121,17 @@ def quaternion_to_euler(qx, qy, qz, qw):
 
 
 def send_init_cmd(config, pub):
-    cmd_vel_init_msg = config.cmd_vel_msg_t
-    cmd_vel_init_msg.linear.x = 0.0
-    cmd_vel_init_msg.linear.y = 0.0
-    cmd_vel_init_msg.linear.z = 0.0
-    cmd_vel_init_msg.angular.x = 0.0
-    cmd_vel_init_msg.angular.y = 0.0
-    cmd_vel_init_msg.angular.z = 0.0
-    pub.publish(cmd_vel_init_msg)
+    cmd_list_msg = config.cmd_list_msg_t
+    cmd_throttle = 0.0
+    cmd_brake = 0.0
+    cmd_steer = 0.0
+    cmd_list_msg.data = [cmd_throttle, cmd_brake, cmd_steer]
+    pub.publish(cmd_list_msg)
 
 
 def convert_cmd_to_twist(cmd_throttle, cmd_steer, cmd_brake):
-    twist_cmd = Twist()
+    global config_g
+    twist_cmd = config_g.cmd_vel_msg_t
     if cmd_throttle > 0.0 and cmd_throttle <= 1.0:
         twist_cmd.linear.x = 1.0
     elif cmd_throttle == 0.0:
@@ -146,6 +146,13 @@ def convert_cmd_to_twist(cmd_throttle, cmd_steer, cmd_brake):
     twist_cmd.linear.x = cmd_throttle
     twist_cmd.angular.z = cmd_steer / 1.22
     return twist_cmd
+
+
+def convert_cmd_to_pub(cmd_throttle, cmd_steer, cmd_brake):
+    global config_g
+    cmd_list_msg = config_g.cmd_list_msg_t
+    cmd_list_msg.data = [cmd_throttle, cmd_brake, cmd_steer]
+    return cmd_list_msg
 
 
 def logger(commands, feedback):
@@ -266,23 +273,24 @@ def feedback_callback(odom_data):
         print("Reaching the end of path.")
         cmd_throttle = 0.0
         cmd_brake = 0.0
-    msg_to_pub = convert_cmd_to_twist(cmd_throttle, cmd_steer, cmd_brake)
+    # msg_to_pub = convert_cmd_to_twist(cmd_throttle, cmd_steer, cmd_brake)
+    msg_to_pub = convert_cmd_to_pub(cmd_throttle, cmd_steer, cmd_brake)
     cmd_pub_g.publish(msg_to_pub)
     commands = [cmd_throttle, cmd_steer, cmd_brake]
     feedback = [odom_x, odom_y]
     logger(commands, feedback)
     previous_timestamp = current_timestamp
     seq_pre_g = seq_cur
-    print "Seq INFO: ", seq_pre_g
-    print "Throttle CMD: ", cmd_throttle
-    print "Steer CMD: ", cmd_steer
-    print "Brake CMD: ", cmd_brake
-    print "X: ", current_x
-    print "Y: ", current_y
-    print "YAW: ", current_yaw
-    print "Speed: ", current_speed
-    print "Goal: ", fg_g[0], ", ", fg_g[1]
-    print "--------------------------"
+    # print "Seq INFO: ", seq_pre_g
+    # print "Throttle CMD: ", cmd_throttle
+    # print "Steer CMD: ", cmd_steer
+    # print "Brake CMD: ", cmd_brake
+    # print "X: ", current_x
+    # print "Y: ", current_y
+    # print "YAW: ", current_yaw
+    # print "Speed: ", current_speed
+    # print "Goal: ", fg_g[0], ", ", fg_g[1]
+    # print "--------------------------"
 
 
 def exec_nav(config, path, pub):

@@ -17,6 +17,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Float64
+from std_msgs.msg import Float64MultiArray
 
 
 def init_globals():
