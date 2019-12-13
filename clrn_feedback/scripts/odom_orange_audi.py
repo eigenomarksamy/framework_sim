@@ -9,7 +9,7 @@ from gazebo_msgs.srv import GetModelState, GetModelStateRequest
 
 rospy.init_node('odom_orange_audi')
 
-odom_pub = rospy.Publisher('/audi_orange_odom', Odometry, queue_size=10)
+odom_pub = rospy.Publisher('/orange/odom', Odometry, queue_size=10)
 
 rospy.wait_for_service('/gazebo/get_model_state')
 

@@ -5,7 +5,7 @@ from std_msgs.msg import Float64
 from geometry_msgs.msg import Twist
 
 
-aucmd_topic = '/audi_orange_cmd'
+aucmd_topic = '/orange/cmd_vel'
 steer_topic = '/orange/steering_cmd'
 steer_pub = rospy.Publisher(steer_topic, Float64, queue_size=10)
 
