@@ -19,7 +19,7 @@ class Config():
             self.brake_topic = '/mkz/brake_cmd'
             self.steer_topic = '/mkz/steering_cmd'
             self.gear_topic = '/mkz/gear_cmd'
-            self.cmd_vel_topic = 'mkz/cmd_vel'
+            self.cmd_vel_topic = '/mkz/cmd_vel'
             self.turn_signal_topic = '/mkz/turn_signal_cmd'
             self.feedback_msg_t = Odometry()
             self.thrtl_msg_t = ThrottleCmd()
@@ -36,7 +36,7 @@ class Config():
             self.thrtl_topic = '/blue/throttle_cmd'
             self.brake_topic = '/blue/brake_cmd'
             self.steer_topic = '/blue/steering_cmd'
-            self.cmd_vel_topic = 'blue/cmd_vel'
+            self.cmd_vel_topic = '/blue/cmd_vel'
             self.feedback_msg_t = Odometry()
             self.thrtl_msg_t = Float64()
             self.brake_msg_t = Float64()
