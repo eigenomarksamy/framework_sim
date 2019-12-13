@@ -6,7 +6,7 @@ from geometry_msgs.msg import Twist
 
 
 max_speed = 3.6		#TODO: Find the actual maximum speed
-aucmd_topic = '/audi_blue_cmd'
+aucmd_topic = '/blue/cmd_vel'
 thrtl_topic = '/blue/throttle_cmd'
 brake_topic = '/blue/brake_cmd'
 thrtl_pub = rospy.Publisher(thrtl_topic, Float64, queue_size=10)
