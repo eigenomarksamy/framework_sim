@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <node pkg="clrn_analyzer" name="parse_odom" type="parse_odom.py" output="screen">
+  </node >
+
+</launch>
