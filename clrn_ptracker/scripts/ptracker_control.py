@@ -36,6 +36,11 @@ def init_nav():
     config = configurator.get_config()
     path = parse_path(config)
     pub_obj = init_ros(config)
+    try:
+        os.remove("/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/controller_output.txt")
+        os.remove("/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/cont_fb_out.txt")
+    except:
+        pass
     return config, path, pub_obj
 
 
@@ -143,6 +148,23 @@ def convert_cmd_to_twist(cmd_throttle, cmd_steer, cmd_brake):
     return twist_cmd
 
 
+def logger(commands, feedback):
+    commands = [str(commands[0]), str(commands[1]), str(commands[2])]
+    feedback = [str(feedback[0]), str(feedback[1])]
+    cmd_log = open("/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/controller_output.txt", "a")
+    fb_log = open("/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/cont_fb_out.txt", "a")
+    for i in range(len(commands)):
+        cmd_log.write(commands[i])
+        cmd_log.write("\n")
+    cmd_log.write("-------------------------\n")
+    cmd_log.close()
+    for i in range(len(feedback)):
+        fb_log.write(feedback[i])
+        fb_log.write("\n")
+    fb_log.write("-------------------------\n")
+    fb_log.close()
+
+
 def feedback_callback(odom_data):
     global cmd_pub_g, config_g, waypoints_g, x_history_g, y_history_g, yaw_history_g, speed_history_g, time_history_g, seq_history_g, seq_pre_g, controller_g, cur_time_g, pre_time_g, closest_index_g, fg_g, reached_the_end_g
     reached_the_end = reached_the_end_g
@@ -235,6 +257,23 @@ def feedback_callback(odom_data):
                              current_timestamp, 1)
     controller_l.update_controls()
     cmd_throttle, cmd_steer, cmd_brake = controller_l.get_commands()
+    dist_to_last_waypoint = np.linalg.norm(np.array([
+        waypoints[-1][0] - current_x,
+        waypoints[-1][1] - current_y]))
+    if  dist_to_last_waypoint < 2.0:
+        reached_the_end = True
+    if reached_the_end:
+        print("Reached the end of path.")
+        cmd_throttle = 0.0
+        cmd_steer = 0.0
+        cmd_brake = 0.0
+    msg_to_pub = convert_cmd_to_twist(cmd_throttle, cmd_steer, cmd_brake)
+    cmd_pub_g.publish(msg_to_pub)
+    commands = [cmd_throttle, cmd_steer, cmd_brake]
+    feedback = [odom_x, odom_y]
+    logger(commands, feedback)
+    previous_timestamp = current_timestamp
+    seq_pre_g = seq_cur
     print "Seq INFO: ", seq_pre_g
     print "Throttle CMD: ", cmd_throttle
     print "Steer CMD: ", cmd_steer
@@ -245,19 +284,6 @@ def feedback_callback(odom_data):
     print "Speed: ", current_speed
     print "Goal: ", fg_g[0], ", ", fg_g[1]
     print "--------------------------"
-    msg_to_pub = convert_cmd_to_twist(cmd_throttle, cmd_steer, cmd_brake)
-    cmd_pub_g.publish(msg_to_pub)
-    dist_to_last_waypoint = np.linalg.norm(np.array([
-        waypoints[-1][0] - current_x,
-        waypoints[-1][1] - current_y]))
-    if  dist_to_last_waypoint < 2.0:
-        reached_the_end = True
-    if reached_the_end:
-        print("Reached the end of path.")
-        msg_to_pub = convert_cmd_to_twist(0.0, 0.0, 0.0)
-        cmd_pub_g.publish(msg_to_pub)
-    previous_timestamp = current_timestamp
-    seq_pre_g = seq_cur
 
 
 def exec_nav(config, path, pub):
