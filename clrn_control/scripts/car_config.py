@@ -4,7 +4,7 @@
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float64
-from dbw_mkz_msgs.msg import TwistCmd, GearCmd, ThrottleCmd, BrakeCmd, SteeringCmd
+from dbw_mkz_msgs.msg import TwistCmd, GearCmd, ThrottleCmd, BrakeCmd, SteeringCmd, TurnSignalCmd
 
 
 class CarConfig:

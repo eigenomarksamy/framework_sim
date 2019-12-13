@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import sys
-
+import rospy
 from dbw_mkz_msgs.msg import ThrottleCmd, BrakeCmd, SteeringCmd
 
 sys.path.append("/home/oks/catkin_ws/src/framework_sim/clrn_control/scripts/")
@@ -33,7 +33,7 @@ def publish_cmd(cmd_obj):
 
 def main():
     while True:
-        config_obj = config_config.CarConfig('fusion')
+        config_obj = car_config.CarConfig('fusion')
         cmd_obj = init_ros(config_obj)
         publish_cmd(cmd_obj)
 
