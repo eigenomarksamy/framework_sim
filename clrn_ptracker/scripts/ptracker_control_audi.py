@@ -279,12 +279,11 @@ def feedback_callback(odom_data):
     dist_to_last_waypoint = np.linalg.norm(np.array([
         waypoints[-1][0] - current_x,
         waypoints[-1][1] - current_y]))
-    if  dist_to_last_waypoint < 10.0:
+    if  dist_to_last_waypoint < 15.0:
         reached_the_end = True
     if reached_the_end:
         print("Reached the end of path.")
         cmd_throttle = 0.0
-        cmd_steer = 0.0
         cmd_brake = 1.0
     thrtl_pub.publish(Float64(cmd_throttle))
     steer_pub.publish(Float64(cmd_steer * 1.57))

@@ -181,6 +181,8 @@ class Controller(object):
                 sample_t += 0.1
             v_des = v_desired
             v_cur = v
+            if v_des < 0.0:
+                v_des = np.abs(v_des)
             v_err_cur = v_des - v_cur
             v_err_pre = self.vars.lot_err_pre
             v_err_pre_intg = self.vars.lot_err_intg_pre
