@@ -65,7 +65,7 @@ def fill_brake_msg(msg, values):
 
 def fill_steer_msg(msg, values):
     steer_msg = msg
-    steer_msg.steering_wheel_angle_cmd = values[0]
+    steer_msg.steering_wheel_angle_cmd = values[0] * 9.6
     steer_msg.steering_wheel_angle_velocity = values[1]
     steer_msg.steering_wheel_torque_cmd = values[2]
     steer_msg.cmd_type = values[3]
