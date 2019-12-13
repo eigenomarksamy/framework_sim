@@ -19,7 +19,7 @@ odom = Odometry()
 
 header = Header()
 
-header.frame_id = '/mkz/base_footprint'
+header.frame_id = '/mkz/base_link'
 
 model = GetModelStateRequest()
 
