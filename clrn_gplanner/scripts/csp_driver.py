@@ -15,8 +15,6 @@ def get_path():
     # csp_generator = imp.load_source('csp_generator.py', '/home/oks/catkin_ws/src/framework_sim/clrn_gplanner/scripts/csp_generator.py')
     waypoints_x, waypoints_y, course_x, course_y, course_yaw, course_k, course_s, final_goal, speed_profile = csp_generator.generate_path(is_default = True)
     plan = [waypoints_x, waypoints_y, final_goal, course_x, course_y, course_yaw, course_k, course_s, target_velocity, speed_profile]
-    for i in range(len(plan)):
-        print plan[i]
     csp_generator.generate_txt_course(plan)
     return plan
 
