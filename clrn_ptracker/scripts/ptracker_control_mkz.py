@@ -272,7 +272,7 @@ def feedback_callback(odom_data):
     if reached_the_end:
         print("Reaching the end of path.")
         cmd_throttle = 0.0
-        cmd_brake = 0.0
+        cmd_brake = 1.0
     # msg_to_pub = convert_cmd_to_twist(cmd_throttle, cmd_steer, cmd_brake)
     msg_to_pub = convert_cmd_to_pub(cmd_throttle, cmd_steer, cmd_brake)
     cmd_pub_g.publish(msg_to_pub)
