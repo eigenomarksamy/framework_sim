@@ -80,6 +80,7 @@ def publish_steer(steer_pub, steer_msg, steer_cmd_list, is_direct):
     steer_pub_obj = steer_pub
     if not is_direct:
         steer_msg = fill_steer_msg(steer_msg, steer_cmd_list)
+        print steer_msg.steering_wheel_angle_cmd
     steer_pub_obj.publish(steer_msg)
     print "Published Steering"
 
@@ -117,18 +118,15 @@ def publish_cmd(cmd_obj, conf_obj, cmd_list):
         thrtl_start_index = 0
         brake_start_index = len(thrtl_cmd_list)
         steer_start_index = len(thrtl_cmd_list) + len(brake_cmd_list)
-        for i in range(thrtl_start_index, len(thrtl_cmd_list)):
-            index = i - thrtl_start_index
-            thrtl_cmd_list[index] = cmd_list[i]
-        for i in range(brake_start_index, len(brake_cmd_list)):
-            index = i - brake_start_index
-            brake_cmd_list[index] = cmd_list[i]
-        for i in range(steer_start_index, len(steer_cmd_list)):
-            index = i - steer_start_index
-            steer_cmd_list[index] = cmd_list[i]
+        thrtl_cmd_list = cmd_list[0:brake_start_index]
+        brake_cmd_list = cmd_list[brake_start_index:steer_start_index]
+        steer_cmd_list = cmd_list[steer_start_index:]
         thrtl_cmd = thrtl_cmd_list
         brake_cmd = brake_cmd_list
         steer_cmd = steer_cmd_list
+        print thrtl_cmd
+        print brake_cmd
+        print steer_cmd
     elif conf_obj.ns == 'blue' or conf_obj.ns == 'orange':
         is_direct = True
         thrtl_cmd = cmd_list[0]
