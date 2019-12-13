@@ -282,7 +282,7 @@ def feedback_callback(odom_data):
     if  dist_to_last_waypoint < 15.0:
         reached_the_end = True
     if reached_the_end:
-        print("Reached the end of path.")
+        print("Reaching the end of path.")
         cmd_throttle = 0.0
         cmd_brake = 1.0
     thrtl_pub.publish(Float64(cmd_throttle))
