@@ -2,7 +2,7 @@
 
 
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, TwistStamped
 from std_msgs.msg import Float64
 from dbw_mkz_msgs.msg import TwistCmd, GearCmd, ThrottleCmd, BrakeCmd, SteeringCmd
 
@@ -52,12 +52,14 @@ class CarConfigNS:
             self.thrtl_topic = '/blue/throttle_cmd'
             self.brake_topic = '/blue/brake_cmd'
             self.steer_topic = '/blue/steering_cmd'
-            self.cmd_vel_topic = 'blue/cmd_vel'
+            self.cmd_vel_topic = '/blue/cmd_vel'
+            self.gt_v_fb_topic = '/blue/twist'
             self.feedback_msg_t = Odometry()
             self.thrtl_msg_t = Float64()
             self.brake_msg_t = Float64()
             self.steer_msg_t = Float64()
             self.cmd_vel_msg_t = Twist()
+            self.gt_v_fb_msg_t = TwistStamped()
             self.time_step = 0.1
         elif vehicle_ns == 'orange':
             self.llc_out_node = 'orange_llc'
@@ -66,10 +68,12 @@ class CarConfigNS:
             self.thrtl_topic = '/orange/throttle_cmd'
             self.brake_topic = '/orange/brake_cmd'
             self.steer_topic = '/orange/steering_cmd'
-            self.cmd_vel_topic = 'orange/cmd_vel'
+            self.cmd_vel_topic = '/orange/cmd_vel'
+            self.gt_v_fb_topic = '/orange/twist'
             self.feedback_msg_t = Odometry()
             self.thrtl_msg_t = Float64()
             self.brake_msg_t = Float64()
             self.steer_msg_t = Float64()
             self.cmd_vel_msg_t = Twist()
+            self.gt_v_fb_msg_t = TwistStamped()
             self.time_step = 0.1
