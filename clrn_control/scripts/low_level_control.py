@@ -32,7 +32,7 @@ def init_ros(config):
             pub_obj_thrtl = rospy.Publisher(config.thrtl_topic, ThrottleCmd, queue_size=10)
             pub_obj_steer = rospy.Publisher(config.steer_topic, SteeringCmd, queue_size=10)
             pub_obj_brake = rospy.Publisher(config.brake_topic, BrakeCmd, queue_size=10)
-        elif config_obj.ns == 'blue' or config_obj.ns == 'orange':
+        elif config.ns == 'blue' or config.ns == 'orange':
             pub_obj_thrtl = rospy.Publisher(config.thrtl_topic, Float64, queue_size=10)
             pub_obj_steer = rospy.Publisher(config.steer_topic, Float64, queue_size=10)
             pub_obj_brake = rospy.Publisher(config.brake_topic, Float64, queue_size=10)
@@ -119,7 +119,8 @@ def publish_cmd(cmd_obj, conf_obj, cmd_list):
         brake_start_index = len(thrtl_cmd_list)
         steer_start_index = len(thrtl_cmd_list) + len(brake_cmd_list)
         thrtl_cmd_list = cmd_list[0:brake_start_index]
-        brake_cmd_list = cmd_list[brake_start_index:steer_start_index]
+        for i in range(len(brake_cmd_list)):
+            brake_cmd_list[i] = cmd_list[i + brake_start_index]
         steer_cmd_list = cmd_list[steer_start_index:]
         thrtl_cmd = thrtl_cmd_list
         brake_cmd = brake_cmd_list
@@ -200,7 +201,7 @@ def exec_ros(cmd_obj, config_obj):
 
 
 def main():
-    config_obj = car_config.CarConfig('mkz')
+    config_obj = car_config.CarConfig('blue')
     cmd_obj = init_ros(config_obj)
     exec_ros(cmd_obj, config_obj)
 
