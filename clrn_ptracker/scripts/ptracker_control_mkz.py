@@ -267,7 +267,7 @@ def feedback_callback(odom_data):
     dist_to_last_waypoint = np.linalg.norm(np.array([
         waypoints[-1][0] - current_x,
         waypoints[-1][1] - current_y]))
-    if  dist_to_last_waypoint < 15.0:
+    if  dist_to_last_waypoint < 10.0:
         reached_the_end = True
     if reached_the_end:
         print("Reaching the end of path.")
