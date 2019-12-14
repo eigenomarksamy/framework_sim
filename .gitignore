@@ -1,3 +1,4 @@
 gen_txtfiles/
 txt_dox/
+perf_analysis/
 *.pyc
