@@ -201,7 +201,7 @@ def exec_ros(cmd_obj, config_obj):
 
 
 def main():
-    config_obj = car_config.CarConfig('blue')
+    config_obj = car_config.CarConfig('mkz')
     cmd_obj = init_ros(config_obj)
     exec_ros(cmd_obj, config_obj)
 
