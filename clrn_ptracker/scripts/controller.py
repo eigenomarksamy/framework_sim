@@ -246,10 +246,10 @@ class Controller(object):
                 sang_des -= 2 * np.pi
             elif sang_des < -np.pi:
                 sang_des += 2 * np.pi
-            if sang_des > 1.22:
-                sang_des = 1.22
-            elif sang_des < -1.22:
-                sang_des = -1.22
+            if sang_des > 1.0:
+                sang_des = 1.0
+            elif sang_des < -1.0:
+                sang_des = -1.0
             self.vars.sang_des = sang_des
             # Change the steer output with the lateral controller. 
             steer_output    = self.vars.sang_des

@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 sys.path.append("/home/oks/catkin_ws/src/framework_sim/clrn_ptracker/scripts/")
 import controller
 import configurator
+sys.path.append("/home/oks/catkin_ws/src/framework_sim/clrn_analyzer/scripts/")
+import live_plotter
 
 import rospy
 from geometry_msgs.msg import Twist
@@ -183,7 +185,7 @@ def logger(commands, feedback):
 
 
 def feedback_callback(odom_data):
-    global cmd_pub_thrtl_g, cmd_pub_steer_g, cmd_pub_brake_g, config_g, waypoints_g, x_history_g, y_history_g, yaw_history_g, speed_history_g, time_history_g, seq_history_g, seq_pre_g, controller_g, cur_time_g, pre_time_g, closest_index_g, fg_g, reached_the_end_g
+    global cmd_pub_thrtl_g, cmd_pub_steer_g, cmd_pub_brake_g, config_g, waypoints_g, x_history_g, y_history_g, yaw_history_g, speed_history_g, time_history_g, seq_history_g, seq_pre_g, controller_g, cur_time_g, pre_time_g, closest_index_g, fg_g, reached_the_end_g, wp_x_g, wp_y_g
     thrtl_pub = cmd_pub_thrtl_g
     steer_pub = cmd_pub_steer_g
     brake_pub = cmd_pub_brake_g
@@ -291,6 +293,7 @@ def feedback_callback(odom_data):
     brake_pub.publish(Float64(cmd_brake))
     commands = [cmd_throttle, cmd_steer, cmd_brake]
     feedback = [odom_x, odom_y]
+    live_plotter.live_plot(wp_x_g, wp_y_g, odom_x, odom_y, closest_index)
     logger(commands, feedback)
     previous_timestamp = current_timestamp
     seq_pre_g = seq_cur
@@ -307,7 +310,7 @@ def feedback_callback(odom_data):
 
 
 def exec_nav(config, path, pub_obj_thrtl, pub_obj_steer, pub_obj_brake):
-    global cmd_pub_thrtl_g, cmd_pub_steer_g, cmd_pub_brake_g, waypoints_g, config_g, controller_g, fg_g
+    global cmd_pub_thrtl_g, cmd_pub_steer_g, cmd_pub_brake_g, waypoints_g, config_g, controller_g, fg_g, wp_x_g, wp_y_g
     cmd_pub_thrtl_g = pub_obj_thrtl
     cmd_pub_steer_g = pub_obj_steer
     cmd_pub_brake_g = pub_obj_brake
@@ -358,6 +361,8 @@ def exec_nav(config, path, pub_obj_thrtl, pub_obj_steer, pub_obj_brake):
     waypoints_g = [waypoints, waypoints_np, wp_distance, wp_interp, wp_interp_hash]
     controller_l = controller.Controller(waypoints)
     controller_g = controller_l
+    wp_x_g = wp_x
+    wp_y_g = wp_y
     rospy.Subscriber(config.feedback_out_topic, Odometry, feedback_callback)
     send_init_cmd(config, pub_obj_thrtl, pub_obj_steer, pub_obj_brake)
     rospy.spin()
