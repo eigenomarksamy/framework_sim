@@ -81,7 +81,7 @@ def publish_steer(steer_pub, steer_msg, steer_cmd_list, is_direct):
     if not is_direct:
         steer_msg = fill_steer_msg(steer_msg, steer_cmd_list)
     else:
-        steer_msg.data = steer_cmd_list
+        steer_msg.data = steer_cmd_list * 17.3
     steer_pub_obj.publish(steer_msg)
     print "Published Steering"
 
@@ -101,7 +101,6 @@ def publish_thrtl(thrtl_pub, thrtl_msg, thrtl_cmd_list, is_direct):
     print "Publishing Throttle"
     thrtl_pub = thrtl_pub
     if not is_direct:
-        print "MKZ or FUSION"
         thrtl_msg = fill_thrtl_msg(thrtl_msg, thrtl_cmd_list)
     else:
         thrtl_msg.data = thrtl_cmd_list
