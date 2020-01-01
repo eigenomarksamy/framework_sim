@@ -20,6 +20,7 @@ sys.path.append("/home/oks/catkin_ws/src/framework_sim/clrn_ptracker/scripts/")
 sys.path.append("/home/oks/catkin_ws/src/framework_sim/clrn_analyzer/scripts/")
 import car_config_ns
 import stanley
+import pure_pursuit
 import live_plotter
 
 
