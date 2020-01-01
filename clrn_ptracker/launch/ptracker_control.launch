@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <include file="$(find clrn_ptracker)/launch/ptracker.launch"/>
+  <include file="$(find clrn_control)/launch/low_level_control.launch"/>
+
+</launch>
