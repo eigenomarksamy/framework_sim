@@ -6,8 +6,8 @@ import rospy
 from std_msgs.msg import Float64, Float64MultiArray
 from dbw_mkz_msgs.msg import ThrottleCmd, BrakeCmd, SteeringCmd
 
-sys.path.append("/home/oks/catkin_ws/src/framework_sim/clrn_control/scripts/")
-import car_config
+sys.path.append("/home/oks/catkin_ws/src/framework_sim/clrn_cfg/scripts/")
+import car_config_ns
 
 
 class Cmd:
@@ -80,7 +80,8 @@ def publish_steer(steer_pub, steer_msg, steer_cmd_list, is_direct):
     steer_pub_obj = steer_pub
     if not is_direct:
         steer_msg = fill_steer_msg(steer_msg, steer_cmd_list)
-        print steer_msg.steering_wheel_angle_cmd
+    else:
+        steer_msg.data = steer_cmd_list
     steer_pub_obj.publish(steer_msg)
     print "Published Steering"
 
@@ -90,6 +91,8 @@ def publish_brake(brake_pub, brake_msg, brake_cmd_list, is_direct):
     brake_pub_obj = brake_pub
     if not is_direct:
         brake_msg = fill_brake_msg(brake_msg, brake_cmd_list)
+    else:
+        brake_msg.data = brake_cmd_list
     brake_pub_obj.publish(brake_msg)
     print "Published Brake"
 
@@ -98,7 +101,10 @@ def publish_thrtl(thrtl_pub, thrtl_msg, thrtl_cmd_list, is_direct):
     print "Publishing Throttle"
     thrtl_pub = thrtl_pub
     if not is_direct:
+        print "MKZ or FUSION"
         thrtl_msg = fill_thrtl_msg(thrtl_msg, thrtl_cmd_list)
+    else:
+        thrtl_msg.data = thrtl_cmd_list
     thrtl_pub.publish(thrtl_msg)
     print "Published Throttle"
 
@@ -125,14 +131,15 @@ def publish_cmd(cmd_obj, conf_obj, cmd_list):
         thrtl_cmd = thrtl_cmd_list
         brake_cmd = brake_cmd_list
         steer_cmd = steer_cmd_list
-        print thrtl_cmd
-        print brake_cmd
-        print steer_cmd
     elif conf_obj.ns == 'blue' or conf_obj.ns == 'orange':
         is_direct = True
         thrtl_cmd = cmd_list[0]
         brake_cmd = cmd_list[1]
         steer_cmd = cmd_list[2]
+    print is_direct
+    print thrtl_cmd
+    print brake_cmd
+    print steer_cmd
     publish_thrtl(thrtl_pub, thrtl_msg, thrtl_cmd, is_direct)
     publish_brake(brake_pub, brake_msg, brake_cmd, is_direct)
     publish_steer(steer_pub, steer_msg, steer_cmd, is_direct)
@@ -168,9 +175,11 @@ def cmd_callback(msg):
         cmd_list[11] = cmd_list[12] = 0.0
         cmd_list[13] = CMD_ANGLE
         cmd_list[14] = cmd_list[15] = cmd_list[16] = cmd_list[7]
-        print cmd_list
     elif config_obj.ns == 'blue' or config_obj.ns == 'orange':
-        cmd_list = cmd_list_in
+        cmd_list = [0] * len(cmd_list_in)
+        for i in range(len(cmd_list_in)):
+            cmd_list[i] = cmd_list_in[i]
+    print cmd_list
     publish_cmd(cmd_obj, config_obj, cmd_list)
 
 
@@ -201,7 +210,8 @@ def exec_ros(cmd_obj, config_obj):
 
 
 def main():
-    config_obj = car_config.CarConfig('mkz')
+    v_ns = 'blue'
+    config_obj = car_config_ns.CarConfigNS(v_ns)
     cmd_obj = init_ros(config_obj)
     exec_ros(cmd_obj, config_obj)
 
