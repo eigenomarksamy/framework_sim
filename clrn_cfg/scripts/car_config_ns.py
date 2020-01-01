@@ -3,15 +3,24 @@
 
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist, TwistStamped
-from std_msgs.msg import Float64
-from dbw_mkz_msgs.msg import TwistCmd, GearCmd, ThrottleCmd, BrakeCmd, SteeringCmd
+from std_msgs.msg import Float64, Float64MultiArray
+from dbw_mkz_msgs.msg import TwistCmd, GearCmd, ThrottleCmd, BrakeCmd, SteeringCmd, TurnSignalCmd
 
 
 class CarConfigNS:
     def __init__(self, vehicle_ns):
         self.ns = vehicle_ns
-        if vehicle_ns == 'fusion':
+        self.gen_file_cont = '/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/controller_output.txt'
+        self.gen_file_cont_fb = '/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/cont_fb_out.txt'
+        self.gen_file_odom = '/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/odom_data_file.txt'
+        self.gen_file_course = '/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/course_txt.txt'
+        self.gen_file_x_path = '/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/x_path_txt.txt'
+        self.gen_file_y_path = '/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/y_path_txt.txt'
+        self.gen_file_yaw_path = '/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/yaw_path_txt.txt'
+        self.gen_gile_max_speed = '/home/oks/catkin_ws/src/framework_sim/gen_txtfiles/target_max_speed.txt'
+        if self.ns == 'fusion':
             self.llc_out_node = 'fusion_llc'
+            self.trkr_out_node = 'fusion_ptracker'
             self.llc_out_topic =  '/fusion/llc'
             self.trkr_out_topic = '/fusion/ptracker'
             self.feedback_out_topic = '/fusion/odom'
@@ -30,9 +39,10 @@ class CarConfigNS:
             self.cmd_vel_msg_t = Twist()
             self.cmd_list_msg_t = Float64MultiArray()
             self.time_step = 0.1
-        elif vehicle_ns == 'mkz':
+        elif self.ns == 'mkz':
             self.llc_out_node = 'mkz_llc'
             self.llc_out_topic =  '/mkz/llc'
+            self.trkr_out_node = 'mkz_ptracker'
             self.trkr_out_topic = '/mkz/ptracker'
             self.feedback_out_topic = '/mkz/odom'
             self.thrtl_topic = '/mkz/throttle_cmd'
@@ -50,8 +60,9 @@ class CarConfigNS:
             self.cmd_vel_msg_t = Twist()
             self.cmd_list_msg_t = Float64MultiArray()
             self.time_step = 0.1
-        elif vehicle_ns == 'blue':
+        elif self.ns == 'blue':
             self.llc_out_node = 'blue_llc'
+            self.trkr_out_node = 'blue_ptracker'
             self.llc_out_topic =  '/blue/llc'
             self.trkr_out_topic = '/blue/ptracker'
             self.feedback_out_topic = '/blue/odom'
@@ -66,8 +77,9 @@ class CarConfigNS:
             self.cmd_vel_msg_t = Twist()
             self.cmd_list_msg_t = Float64MultiArray()
             self.time_step = 0.1
-        elif vehicle_ns == 'orange':
+        elif self.ns == 'orange':
             self.llc_out_node = 'orange_llc'
+            self.trkr_out_node = 'orange_ptracker'
             self.llc_out_topic =  '/orange/llc'
             self.trkr_out_topic = '/orange/ptracker'
             self.feedback_out_topic = '/orange/odom'
