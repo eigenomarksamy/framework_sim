@@ -178,7 +178,7 @@ class Stanley(object):
             t_pre = self.vars.t_pre
             sample_t = t_cur - t_pre
             if sample_t == 0.0:
-                sample_t += 0.1
+                sample_t += 0.01
             v_des = v_desired
             v_cur = v
             if v_des < 0.0:
