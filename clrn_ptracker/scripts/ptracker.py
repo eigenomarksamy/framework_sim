@@ -4,14 +4,17 @@
 import sys
 import os
 import time
+
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+
 import rospy
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Float64
 from std_msgs.msg import Float64MultiArray
+
 sys.path.append("/home/oks/catkin_ws/src/framework_sim/clrn_cfg/scripts/")
 sys.path.append("/home/oks/catkin_ws/src/framework_sim/clrn_ptracker/scripts/")
 sys.path.append("/home/oks/catkin_ws/src/framework_sim/clrn_analyzer/scripts/")
@@ -182,7 +185,6 @@ def feedback_callback(odom_data):
     wp_distance = waypoints_g[2]
     wp_interp = waypoints_g[3]
     wp_interp_hash = waypoints_g[4]
-    t = rospy.Time.from_sec(time.time())
     odom_x = odom_data.pose.pose.position.x
     odom_y = odom_data.pose.pose.position.y
     odom_qx = odom_data.pose.pose.orientation.x
@@ -203,15 +205,14 @@ def feedback_callback(odom_data):
     speed_history.append(current_speed)
     seq_history.append(seq_cur)
     if seq_pre_g == 0:
-        time_history.append(0.01)
+        time_history.append(0.1)
         pre_time_g = 0.0
-        cur_time_g = 0.01
+        cur_time_g = 0.1
     else:
         time_history.append(time_history[-1] + 0.1)
         cur_time_g = pre_time_g + 0.1
     previous_timestamp = pre_time_g
     current_timestamp = cur_time_g
-    current_timestamp = t.to_sec()
     if seq_pre_g == 0:
         closest_index_g = 0
     closest_index = closest_index_g
