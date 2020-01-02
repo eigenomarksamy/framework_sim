@@ -168,6 +168,49 @@ def logger(config, commands, feedback):
     fb_log.close()
 
 
+def get_new_plan(closest_index, current_x, current_y, waypoints_np, wp_interp, wp_interp_hash, wp_distance):
+    closest_distance = np.linalg.norm(np.array([
+            waypoints_np[closest_index, 0] - current_x,
+            waypoints_np[closest_index, 1] - current_y]))
+    new_distance = closest_distance
+    new_index = closest_index
+    while new_distance <= closest_distance:
+        closest_distance = new_distance
+        closest_index = new_index
+        new_index += 1
+        if new_index >= waypoints_np.shape[0]:
+            break
+        new_distance = np.linalg.norm(np.array([
+                waypoints_np[new_index, 0] - current_x,
+                waypoints_np[new_index, 1] - current_y]))
+    new_distance = closest_distance
+    new_index = closest_index
+    while new_distance <= closest_distance:
+        closest_distance = new_distance
+        closest_index = new_index
+        new_index -= 1
+        if new_index < 0:
+            break
+        new_distance = np.linalg.norm(np.array([
+                waypoints_np[new_index, 0] - current_x,
+                waypoints_np[new_index, 1] - current_y]))
+    waypoint_subset_first_index = closest_index - 1
+    if waypoint_subset_first_index < 0:
+        waypoint_subset_first_index = 0
+    waypoint_subset_last_index = closest_index
+    total_distance_ahead = 0
+    while total_distance_ahead < 20:
+        total_distance_ahead += wp_distance[waypoint_subset_last_index]
+        waypoint_subset_last_index += 1
+        if waypoint_subset_last_index >= waypoints_np.shape[0]:
+            waypoint_subset_last_index = waypoints_np.shape[0] - 1
+            break
+    new_waypoints = \
+            wp_interp[wp_interp_hash[waypoint_subset_first_index]:\
+                      wp_interp_hash[waypoint_subset_last_index] + 1]
+    return new_waypoints, closest_index
+
+
 def feedback_callback(odom_data):
     global cmd_pub_g, config_g, waypoints_g, x_history_g, y_history_g, yaw_history_g, speed_history_g, time_history_g, seq_history_g, seq_pre_g, controller_g, cur_time_g, pre_time_g, closest_index_g, fg_g, reached_the_end_g, wp_x_g, wp_y_g
     reached_the_end = reached_the_end_g
@@ -216,45 +259,7 @@ def feedback_callback(odom_data):
     if seq_pre_g == 0:
         closest_index_g = 0
     closest_index = closest_index_g
-    closest_distance = np.linalg.norm(np.array([
-            waypoints_np[closest_index, 0] - current_x,
-            waypoints_np[closest_index, 1] - current_y]))
-    new_distance = closest_distance
-    new_index = closest_index
-    while new_distance <= closest_distance:
-        closest_distance = new_distance
-        closest_index = new_index
-        new_index += 1
-        if new_index >= waypoints_np.shape[0]:
-            break
-        new_distance = np.linalg.norm(np.array([
-                waypoints_np[new_index, 0] - current_x,
-                waypoints_np[new_index, 1] - current_y]))
-    new_distance = closest_distance
-    new_index = closest_index
-    while new_distance <= closest_distance:
-        closest_distance = new_distance
-        closest_index = new_index
-        new_index -= 1
-        if new_index < 0:
-            break
-        new_distance = np.linalg.norm(np.array([
-                waypoints_np[new_index, 0] - current_x,
-                waypoints_np[new_index, 1] - current_y]))
-    waypoint_subset_first_index = closest_index - 1
-    if waypoint_subset_first_index < 0:
-        waypoint_subset_first_index = 0
-    waypoint_subset_last_index = closest_index
-    total_distance_ahead = 0
-    while total_distance_ahead < 20:
-        total_distance_ahead += wp_distance[waypoint_subset_last_index]
-        waypoint_subset_last_index += 1
-        if waypoint_subset_last_index >= waypoints_np.shape[0]:
-            waypoint_subset_last_index = waypoints_np.shape[0] - 1
-            break
-    new_waypoints = \
-            wp_interp[wp_interp_hash[waypoint_subset_first_index]:\
-                      wp_interp_hash[waypoint_subset_last_index] + 1]
+    new_waypoints, closest_index = get_new_plan(closest_index, current_x, current_y, waypoints_np, wp_interp, wp_interp_hash, wp_distance)
     controller_l.update_waypoints(new_waypoints)
     controller_l.update_values(current_x, current_y, current_yaw, 
                              current_speed,
@@ -264,7 +269,14 @@ def feedback_callback(odom_data):
     dist_to_last_waypoint = np.linalg.norm(np.array([
         waypoints[-1][0] - current_x,
         waypoints[-1][1] - current_y]))
-    if  dist_to_last_waypoint < 10.0:
+    if dist_to_last_waypoint < 10.0:
+        apply_brake = True
+    else:
+        apply_brake = False
+    if apply_brake:
+        cmd_throttle = 0.0
+        cmd_brake = 1.0
+    if  dist_to_last_waypoint < 2.0:
         reached_the_end = True
     if reached_the_end:
         print("Reaching the end of path.")
@@ -276,6 +288,7 @@ def feedback_callback(odom_data):
     feedback = [odom_x, odom_y]
     live_plotter.live_plot(wp_x_g, wp_y_g, odom_x, odom_y, closest_index)
     logger(config, commands, feedback)
+    closest_index_g = closest_index
     previous_timestamp = current_timestamp
     seq_pre_g = seq_cur
 
